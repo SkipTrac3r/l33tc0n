@@ -128,8 +128,16 @@ install_zsh() {
 # Function to install Oh My Zsh and plugins
 install_oh_my_zsh() {
   log_message "Installing Oh My Zsh and plugins..."
-  execute runuser -l $CURRENT_USER -c 'sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"'
-  
+
+  # Download Oh My Zsh install script
+  execute wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O install_ohmyzsh.sh
+
+  # Modify the script to skip changing the shell
+  sed -i 's/env zsh -l//g' install_ohmyzsh.sh
+
+  # Run the modified script as the current user
+  execute runuser -l $CURRENT_USER -c 'sh install_ohmyzsh.sh --unattended'
+
   ZSH_CUSTOM="$HOME_DIR/.oh-my-zsh/custom"
   execute runuser -l $CURRENT_USER -c "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
   execute runuser -l $CURRENT_USER -c "git clone https://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions"
@@ -192,6 +200,18 @@ install_alacritty
 install_zsh
 install_oh_my_zsh
 install_neovim
+
+# Change the shell to zsh
 change_shell_to_zsh
 
-log_message "Setup script completed."
+log_message "Setup script completed. Rebooting in 7 seconds. Press Ctrl+C to abort reboot..."
+
+# Countdown for 7 seconds
+for i in {7..1}; do
+    echo -ne "$i... "
+    sleep 1
+done
+echo "!!!REBOOTING!!!"
+
+# Force a reboot
+reboot
