@@ -141,6 +141,25 @@ install_oh_my_zsh() {
   log_message "Oh My Zsh and plugins installation completed."
 }
 
+# Function to change the default shell to zsh
+change_shell_to_zsh() {
+  local user_home=$(eval echo ~$CURRENT_USER)
+  local zsh_path=$(which zsh)
+
+  if [ -z "$zsh_path" ]; then
+    log_message "Zsh is not installed. Skipping shell change."
+    return
+  fi
+
+  if [ "$(getent passwd $CURRENT_USER | cut -d: -f7)" != "$zsh_path" ]; then
+    log_message "Changing default shell to Zsh for user $CURRENT_USER..."
+    sudo usermod -s "$zsh_path" "$CURRENT_USER"
+    log_message "Default shell changed to Zsh."
+  else
+    log_message "Default shell is already Zsh."
+  fi
+}
+
 # Function to install Neovim and packer.nvim
 install_neovim() {
   log_message "Installing Neovim and packer.nvim..."
@@ -173,5 +192,6 @@ install_alacritty
 install_zsh
 install_oh_my_zsh
 install_neovim
+change_shell_to_zsh
 
 log_message "Setup script completed."
